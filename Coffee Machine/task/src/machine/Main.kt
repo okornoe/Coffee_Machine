@@ -44,18 +44,23 @@ fun calculateAmountOfCoffee(water : Int, milk: Int, coffeeBeans: Int, cupsOfCoff
 
     else if ((water < (200 * cupsOfCoffee)) || (milk < (50 * cupsOfCoffee))
             || (coffeeBeans < (15 * cupsOfCoffee))) {
-
-        if (water < (200 * cupsOfCoffee)) {
-            println("No, I can make only ${water/(200)} cup(s) of coffee")
-        }
+        val minCoffee = minOf((water/200),
+                (milk / 50),
+                (coffeeBeans /15) )
+        println("No, I can make only $minCoffee cup(s) of coffee")
     }
+
 
     // if coffee machine machine can make that amount and more,
     // "yes I can make that amount of coffee and n more"
 
     if (water >  (200 * cupsOfCoffee) && milk > (50 * cupsOfCoffee) && coffeeBeans > (15 * cupsOfCoffee) ) {
         if (cupsOfCoffee > 0) {
-            println("Yes, I can make that amount of coffee (and even ${water / (200 * cupsOfCoffee)} more than that)")
+            val result = minOf((water - (cupsOfCoffee * 200)) / (200 * cupsOfCoffee),
+                               (milk - (cupsOfCoffee * 50)) / (50 * cupsOfCoffee),
+                               (coffeeBeans - (cupsOfCoffee * 15)) / (15 * cupsOfCoffee))
+            println("Yes, I can make that amount of coffee (and even " +
+                    "$result more than that)")
         } else {
             println("Yes, I can make that amount of coffee (and even 1 more than that)")
         }
