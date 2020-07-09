@@ -16,8 +16,23 @@ fun main() {
     actions()
 }
 
-fun calculateAmountOfCoffee(water: Int, milk: Int, coffeeBeans: Int, cupsOfCoffee: Int) {
+fun actions(nextInput: Boolean = true) {
+    val scanner = Scanner(System.`in`)
+    loop@ while (nextInput) {
+        print("Write action (buy, fill, take, remaining, exit, zero - how many cups of coffee can you make): ")
+        when (scanner.next()) {
+            "buy" -> buy()
+            "fill" -> fill()
+            "take" -> take()
+            "remaining" -> printStateOfCoffeeMachine()
+            "zero" -> calculateAmountOfCoffee(GeneralVariables.quantityOfWater, GeneralVariables.quantityOfMilk,
+                    GeneralVariables.quantityOfCoffeeBeans, GeneralVariables.quantityOfDisposableCups)
+            "exit" -> break@loop
+        }
+    }
+}
 
+fun calculateAmountOfCoffee(water: Int, milk: Int, coffeeBeans: Int, cupsOfCoffee: Int) {
     if (water == (200 * cupsOfCoffee) && milk == (50 * cupsOfCoffee) && coffeeBeans == (15 * cupsOfCoffee)) {
         println("Yes, I can make that amount of coffee")
     } else if ((water < (200 * cupsOfCoffee)) || (milk < (50 * cupsOfCoffee))
@@ -41,37 +56,12 @@ fun calculateAmountOfCoffee(water: Int, milk: Int, coffeeBeans: Int, cupsOfCoffe
     }
 }
 
-fun miniAmountOfCoffeeToMake() {
-    val sc = Scanner(System.`in`)
-
-    println("Write how many ml of water the coffee machine has: ")
-    val litersOfWater = sc.nextInt()
-
-    println("Write how many ml of milk the coffee machine has: ")
-    val litersOfMilk = sc.nextInt()
-
-    println("Write how many grams of coffee beans the coffee machine has: ")
-    val gramsOfCoffee = sc.nextInt()
-
-    println("Write how many cups of coffee you will need: ")
-    val cupsOfCoffee = sc.nextInt()
-
-    calculateAmountOfCoffee(litersOfWater, litersOfMilk, gramsOfCoffee, cupsOfCoffee)
-}
-
-fun calculateResourcesAvailable(water: Int, milk: Int, coffeeBeans: Int) = (water < 200 || milk < 75 || coffeeBeans < 12)
-
-fun actions(nextInput: Boolean = true) {
-    val scanner = Scanner(System.`in`)
-    loop@ while (nextInput) {
-        print("Write action (buy, fill, take, remaining, exit): ")
-        when (scanner.next()) {
-            "buy" -> buy()
-            "fill" -> fill()
-            "take" -> take()
-            "remaining" -> printStateOfCoffeeMachine()
-            "exit" -> break@loop
-        }
+fun isCoffeeMaterialsAvailable(water: Int, milk: Int, coffeeBeans: Int): String {
+    return when ((water < 200 || milk < 75 || coffeeBeans < 12)) {
+        water < 200 -> "sorry, not enough water"
+        milk < 75 -> "sorry, not enough milk"
+        coffeeBeans < 16 -> "sorry, not enough coffee beans"
+        else -> ""
     }
 }
 
@@ -97,15 +87,6 @@ fun take() {
     GeneralVariables.quantityOfMoney = 0
 }
 
-fun shortage(water: Int, milk: Int, coffeeBeans: Int): String {
-    return when (calculateResourcesAvailable(water, milk, coffeeBeans)) {
-        water < 200 -> "water"
-        milk < 75 -> "milk"
-        coffeeBeans < 16 -> "coffee beans"
-        else -> ""
-    }
-}
-
 fun buy() {
     print("What do you want to buy? 1 - espresso, 2 - latte, 3 - cappuccino, back - to main menu: ")
     when (Scanner(System.`in`).next()) {
@@ -118,13 +99,28 @@ fun buy() {
 
 fun latte() {
     // latte coffee needs water(350), beans(20), milk(75), cost(7)
-    if (calculateResourcesAvailable(GeneralVariables.quantityOfWater,
-                    GeneralVariables.quantityOfMilk, GeneralVariables.quantityOfCoffeeBeans)) {
-        println("sorry, not enough ${shortage(GeneralVariables.quantityOfWater,
-                GeneralVariables.quantityOfMilk, GeneralVariables.quantityOfCoffeeBeans)}!")
+    if((GeneralVariables.quantityOfWater < 200 || GeneralVariables.quantityOfMilk < 75 || GeneralVariables.quantityOfCoffeeBeans < 12)) {
+        isCoffeeMaterialsAvailable(GeneralVariables.quantityOfWater, GeneralVariables.quantityOfMilk, GeneralVariables.quantityOfCoffeeBeans)
     } else {
-
         printLatte()
+    }
+}
+
+fun cappuccino() {
+    // cappuccino coffee needs water(200), milk(100), beans(12), cost(6)
+    if((GeneralVariables.quantityOfWater < 200 || GeneralVariables.quantityOfMilk < 75 || GeneralVariables.quantityOfCoffeeBeans < 12)) {
+        isCoffeeMaterialsAvailable(GeneralVariables.quantityOfWater, GeneralVariables.quantityOfMilk, GeneralVariables.quantityOfCoffeeBeans)
+    } else {
+        printCappuccino()
+    }
+}
+
+fun espresso() {
+    // espresso coffee needs water(250), beans(16), cost(4)
+    if((GeneralVariables.quantityOfWater < 200 || GeneralVariables.quantityOfMilk < 75 || GeneralVariables.quantityOfCoffeeBeans < 12)) {
+        isCoffeeMaterialsAvailable(GeneralVariables.quantityOfWater, GeneralVariables.quantityOfMilk, GeneralVariables.quantityOfCoffeeBeans)
+    } else {
+        printEspresso()
     }
 }
 
@@ -137,17 +133,6 @@ fun printLatte() {
     GeneralVariables.quantityOfDisposableCups = GeneralVariables.quantityOfDisposableCups - 1
 }
 
-fun cappuccino() {
-    // cappuccino coffee needs water(200), milk(100), beans(12), cost(6)
-    if (calculateResourcesAvailable(GeneralVariables.quantityOfWater,
-                    GeneralVariables.quantityOfMilk, GeneralVariables.quantityOfCoffeeBeans)) {
-        println("sorry, not enough ${shortage(GeneralVariables.quantityOfWater,
-                GeneralVariables.quantityOfMilk, GeneralVariables.quantityOfCoffeeBeans)}!")
-    } else {
-        printCappuccino()
-    }
-}
-
 fun printCappuccino() {
     println("I have enough resources, making you a coffee!")
     GeneralVariables.quantityOfWater = GeneralVariables.quantityOfWater - 200
@@ -155,17 +140,6 @@ fun printCappuccino() {
     GeneralVariables.quantityOfMoney = GeneralVariables.quantityOfMoney + 6
     GeneralVariables.quantityOfMilk = GeneralVariables.quantityOfMilk - 100
     GeneralVariables.quantityOfDisposableCups = GeneralVariables.quantityOfDisposableCups - 1
-}
-
-fun espresso() {
-    // espresso coffee needs water(250), beans(16), cost(4)
-    if (calculateResourcesAvailable(GeneralVariables.quantityOfWater,
-                    GeneralVariables.quantityOfMilk, GeneralVariables.quantityOfCoffeeBeans)) {
-        println("sorry, not enough ${shortage(GeneralVariables.quantityOfWater,
-                GeneralVariables.quantityOfMilk, GeneralVariables.quantityOfCoffeeBeans)}!")
-    } else {
-        printEspresso()
-    }
 }
 
 fun printEspresso() {
@@ -179,7 +153,6 @@ fun printEspresso() {
 /**
  * prints the state of the coffee machine
  */
-
 fun printStateOfCoffeeMachine() {
     println("The coffee machine has: ")
     println("${GeneralVariables.quantityOfWater} of water")
@@ -192,7 +165,6 @@ fun printStateOfCoffeeMachine() {
 /**
  * stores the various quantities of the coffee machine
  */
-
 object GeneralVariables {
     var quantityOfWater = 400
     var quantityOfMilk = 540
